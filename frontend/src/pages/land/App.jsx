@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./App.css";
+import "../../styles/App.css";
 
 function App() {
   const navigate = useNavigate();
@@ -33,7 +33,7 @@ function App() {
       const data = await response.json();
       console.log(data);
 
-      navigate(`/tabela/${data.dataset_id}`);
+      navigate(`/workspace/${data.dataset_id}`);
     } catch (error) {
       console.error(error);
       setMensagem("Erro ao conectar com o backend.");
