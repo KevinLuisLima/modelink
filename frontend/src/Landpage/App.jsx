@@ -73,7 +73,7 @@ function App() {
           onClick={classificarArquivo}
           disabled={carregando}
         >
-          ✧ {carregando ? "Classificando..." : "Classificar"}
+          ✧ {carregando ? "Gerando..." : "Gerar"}
         </button>
 
         {mensagem && <p className="message">{mensagem}</p>}

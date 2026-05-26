@@ -5,10 +5,10 @@ import {
   Route,
 } from "react-router-dom";
 
-import App from "./App";
-import Tabela from "./Tabela";
+import App from "./Landpage/App";
+import Tabela from "./Tabelapage/Tabela";
 
-import "./App.css";
+import "./Landpage/App";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
