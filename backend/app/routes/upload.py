@@ -1,23 +1,37 @@
+import os
 import uuid
 import pandas as pd
-import os
+
 from io import BytesIO, StringIO
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 
-router = APIRouter()
+from app.services.datasest_store import save_dataset, get_dataset
 
-_datasets: dict[str, pd.DataFrame] = {}
+router = APIRouter()
 
 
 def _detect_types(df: pd.DataFrame) -> dict:
     types = {}
+
     for col in df.columns:
         if pd.api.types.is_numeric_dtype(df[col]):
             types[col] = "num"
         else:
             types[col] = "str"
+
     return types
+
+
+def _prepare_json_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
+    df = df.fillna("")
+
+    for col in df.columns:
+        if pd.api.types.is_datetime64_any_dtype(df[col]):
+            df[col] = df[col].astype(str)
+
+    return df
 
 
 @router.post("/upload")
@@ -47,54 +61,38 @@ async def upload_file(file: UploadFile = File(...)):
         elif filename.endswith(".tsv"):
             df = pd.read_csv(StringIO(content.decode("utf-8")), sep="\t")
 
-        elif filename.endswith(".xlsx") or filename.endswith(".xls"):
+        else:
             df = pd.read_excel(BytesIO(content))
 
     except Exception as e:
         raise HTTPException(422, f"Erro ao processar arquivo: {e}")
 
     dataset_id = str(uuid.uuid4())
-    _datasets[dataset_id] = df
     df.attrs["filename"] = os.path.splitext(file.filename)[0]
 
-    df = df.fillna("")
+    save_dataset(dataset_id, df)
 
-    for col in df.columns:
-        if pd.api.types.is_datetime64_any_dtype(df[col]):
-            df[col] = df[col].astype(str)
-
-    preview = df.head(100).to_dict(orient="records")
+    df_json = _prepare_json_dataframe(df)
 
     return JSONResponse({
         "dataset_id": dataset_id,
-        "filename": file.filename,
+        "filename": df.attrs["filename"],
         "rows": len(df),
         "columns": list(df.columns),
         "types": _detect_types(df),
-        "preview": preview,
+        "preview": df_json.head(100).to_dict(orient="records"),
     })
+
 
 @router.get("/dataset/{dataset_id}")
 async def get_dataset_preview(dataset_id: str):
-
     df = get_dataset(dataset_id)
-
-    df = df.fillna("")
-
-    for col in df.columns:
-        if pd.api.types.is_datetime64_any_dtype(df[col]):
-            df[col] = df[col].astype(str)
+    df_json = _prepare_json_dataframe(df)
 
     return {
         "filename": df.attrs.get("filename", "Arquivo"),
+        "rows": len(df),
         "columns": list(df.columns),
-        "preview": df.head(100).to_dict(orient="records")
+        "types": _detect_types(df),
+        "preview": df_json.head(100).to_dict(orient="records"),
     }
-
-def get_dataset(dataset_id: str) -> pd.DataFrame:
-    df = _datasets.get(dataset_id)
-
-    if df is None:
-        raise HTTPException(404, "Dataset não encontrado, faça o upload novamente")
-
-    return df

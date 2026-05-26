@@ -1,7 +1,7 @@
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.routes import upload
+from app.routes import upload, plot
 
 app = FastAPI(title="Modelink API", version="0.1.0")
 
@@ -14,17 +14,4 @@ app.add_middleware(
 )
 
 app.include_router(upload.router, prefix="/api")
-
-
-@app.post("/upload")
-async def upload_file(
-    file: UploadFile = File(...),
-    categorias: str = Form(""),
-    instrucoes: str = Form("")
-):
-    return {
-        "mensagem": "Arquivo recebido com sucesso",
-        "arquivo": file.filename,
-        "categorias": categorias,
-        "instrucoes": instrucoes
-    }
+app.include_router(plot.router, prefix="/api")
