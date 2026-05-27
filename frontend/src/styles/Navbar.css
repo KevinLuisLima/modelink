@@ -30,15 +30,10 @@
   border: none;
   background: #ef4444;
   color: white;
-
   padding: 10px 18px;
-
   border-radius: 10px;
-
   font-size: 0.95rem;
-
   cursor: pointer;
-
   transition: 0.2s;
 }
 
@@ -54,15 +49,10 @@
 .nav-button {
   border: none;
   background: transparent;
-
   padding: 10px 18px;
-
   border-radius: 10px;
-
   font-size: 0.95rem;
-
   cursor: pointer;
-
   transition: 0.2s;
 }
 
