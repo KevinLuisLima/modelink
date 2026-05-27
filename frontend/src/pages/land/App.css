@@ -14,6 +14,147 @@ body {
   padding: 20px;
 }
 
+.landing-page {
+  width: 100%;
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding: 50px;
+}
+
+.hero-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.hero-section h1 {
+  font-size: 4rem;
+  margin: 0;
+  color: #0f172a;
+}
+
+.hero-section h2 {
+  font-size: 2rem;
+  margin-top: 10px;
+  color: #334155;
+}
+
+.hero-section p {
+  margin-top: 16px;
+  font-size: 1.1rem;
+  color: #64748b;
+}
+
+.content-section {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.upload-card {
+  background: white;
+  padding: 32px;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-button {
+  width: 100%;
+  padding: 18px;
+  border-radius: 14px;
+  border: 2px solid #f97316;
+  background: #f97316;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-select-list {
+  position: absolute;
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  list-style: none;
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.15);
+  z-index: 10;
+}
+
+.custom-select-item {
+  padding: 14px 16px;
+  border-radius: 10px;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.custom-select-item:hover {
+  background: #f97316;
+  color: white;
+}
+
+.generate-button {
+  width: 100%;
+
+  margin-top: 24px;
+
+  border: none;
+
+  background: #f97316;
+
+  color: white;
+
+  padding: 16px;
+
+  border-radius: 12px;
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.generate-button:hover {
+  background: #ea580c;
+}
+
+@media (max-width: 1000px) {
+
+  .content-section {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-page {
+    padding: 24px;
+  }
+
+  .hero-section h1 {
+    font-size: 3rem;
+  }
+
+  .hero-section h2 {
+    font-size: 1.5rem;
+  }
+}
+
 .hero {
   max-width: 950px;
   margin: 0 auto 60px;
