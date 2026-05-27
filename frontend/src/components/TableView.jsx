@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
-import { useNavigate , useParams } from "react-router-dom";
-import "./Tabela.css";
+import { useParams } from "react-router-dom";
+import "../styles/Table.css";
 
-function Tabela() {
+function TableView() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [dados, setDados] = useState(null);
 
   useEffect(() => {
@@ -35,11 +34,6 @@ function Tabela() {
 
   return (
     <main className="table-page">
-      <button className="back-button"
-        onClick={() => navigate("/")}
-      >
-        ← Voltar
-      </button>
       <h1 className="table-title">
         {dados.filename}
       </h1>
@@ -73,4 +67,4 @@ function Tabela() {
   );
 }
 
-export default Tabela;
+export default TableView;
