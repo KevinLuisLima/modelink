@@ -6,7 +6,7 @@ from io import BytesIO, StringIO
 from fastapi import APIRouter, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
 
-from app.services.datasest_store import save_dataset, get_dataset
+from app.services.datasest_store import save_dataset
 
 router = APIRouter()
 
@@ -82,17 +82,3 @@ async def upload_file(file: UploadFile = File(...)):
         "types": _detect_types(df),
         "preview": df_json.head(100).to_dict(orient="records"),
     })
-
-
-@router.get("/dataset/{dataset_id}")
-async def get_dataset_preview(dataset_id: str):
-    df = get_dataset(dataset_id)
-    df_json = _prepare_json_dataframe(df)
-
-    return {
-        "filename": df.attrs.get("filename", "Arquivo"),
-        "rows": len(df),
-        "columns": list(df.columns),
-        "types": _detect_types(df),
-        "preview": df_json.head(100).to_dict(orient="records"),
-    }
