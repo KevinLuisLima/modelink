@@ -10,7 +10,6 @@
 
   display: flex;
   align-items: center;
-  justify-content: space-between;
 
   padding: 0 30px;
 
@@ -19,11 +18,45 @@
   z-index: 1000;
 }
 
+.navbar-menu {
+  flex: 1;
+
+  display: flex;
+  justify-content: center;
+
+  gap: 12px;
+}
+
 .navbar-logo {
   font-size: 1.5rem;
   font-weight: 700;
   color: #e48f16;
   cursor: pointer;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin-left: auto;
+}
+
+.back-results-button {
+  border: none;
+  background: #f97316;
+  color: white;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.2s;
+  margin-right: 8px;
+}
+
+.back-results-button:hover {
+  background: #ea580c;
 }
 
 .logout-button {
