@@ -38,8 +38,8 @@ modelink/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-|   |   ├── pages/
-|   |   ├── styles/
+│   │   ├── pages/
+│   │   ├── styles/
 │   │   └── main.jsx
 │   │
 │   ├── index.html
