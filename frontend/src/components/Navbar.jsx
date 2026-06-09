@@ -1,8 +1,9 @@
 import "../styles/Navbar.css";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 function Navbar({ activeTab, setActiveTab }) {
   const navigate = useNavigate();
+  const { id } = useParams();
 
   const buttons = [
     { id: "tabela", label: "Tabela" },
@@ -42,6 +43,13 @@ function Navbar({ activeTab, setActiveTab }) {
         ))}
 
       </nav>
+      <button
+        className="back-results-button"
+        onClick={() => navigate(`/workspace/${id}`)}
+      >
+        Voltar
+      </button>
+
       <button
         className="logout-button"
         onClick={sair}

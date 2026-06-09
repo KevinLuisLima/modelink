@@ -77,7 +77,7 @@ body {
 
 .table-select:hover,
 .table-search:hover {
-  border-color: #f97316;
+  border-color: #f7954e;
 }
 
 @media (max-width: 900px) {
