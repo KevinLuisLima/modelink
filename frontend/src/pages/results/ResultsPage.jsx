@@ -1,9 +1,11 @@
 import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import "./ResultsPage.css";
 
 function ResultsPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [linkCopiado, setLinkCopiado] = useState(false);
 
   return (
     <main className="results-page">
@@ -30,7 +32,25 @@ function ResultsPage() {
         >
           Opções avançadas
         </button>
+        <button
+          className="share-results-button"
+          onClick={() => {
+            navigator.clipboard.writeText(window.location.href);
+            setLinkCopiado(true);
+
+            setTimeout(() => {
+              setLinkCopiado(false);
+            }, 2500);
+          }}
+        >
+          Compartilhar
+        </button>
       </section>
+      {linkCopiado && (
+        <div className="copy-toast">
+          Link copiado com sucesso!
+        </div>
+      )}
     </main>
   );
 }
