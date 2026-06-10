@@ -10,6 +10,7 @@ function Navbar({ activeTab, setActiveTab }) {
     { id: "classificador", label: "Classificador" },
     { id: "acuracia", label: "Acurácia" },
     { id: "dashboard", label: "Dashboard" },
+    { id: "informacoes", label: "Informações" },
   ];
 
   function sair() {
@@ -18,16 +19,14 @@ function Navbar({ activeTab, setActiveTab }) {
 
   return (
     <header className="navbar">
-
-      <div 
-      className="navbar-logo"
-      onClick={() => navigate("/")}
+      <div
+        className="navbar-logo"
+        onClick={() => navigate("/")}
       >
         Modelink
       </div>
 
       <nav className="navbar-menu">
-
         {buttons.map((button) => (
           <button
             key={button.id}
@@ -41,8 +40,8 @@ function Navbar({ activeTab, setActiveTab }) {
             {button.label}
           </button>
         ))}
-
       </nav>
+
       <button
         className="back-results-button"
         onClick={() => navigate(`/workspace/${id}`)}

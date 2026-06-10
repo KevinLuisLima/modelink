@@ -3,12 +3,19 @@ import uuid
 import pandas as pd
 
 from io import BytesIO, StringIO
-from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 
-from app.services.datasest_store import save_dataset
+from app.services.datasest_store import save_dataset, save_classifier
 
 router = APIRouter()
+
+CLASSIFIER_LABELS = {
+    "randomforest": "Random Forest",
+    "svm": "SVM",
+    "knn": "KNN",
+    "decisiontree": "Decision Tree",
+}
 
 
 def _detect_types(df: pd.DataFrame) -> dict:
@@ -35,7 +42,10 @@ def _prepare_json_dataframe(df: pd.DataFrame) -> pd.DataFrame:
 
 
 @router.post("/upload")
-async def upload_file(file: UploadFile = File(...)):
+async def upload_file(
+    file: UploadFile = File(...),
+    classifier: str = Form("decisiontree"),
+):
     filename = file.filename.lower()
 
     if not (
@@ -71,12 +81,14 @@ async def upload_file(file: UploadFile = File(...)):
     df.attrs["filename"] = os.path.splitext(file.filename)[0]
 
     save_dataset(dataset_id, df)
+    save_classifier(dataset_id, classifier)
 
     df_json = _prepare_json_dataframe(df)
 
     return JSONResponse({
         "dataset_id": dataset_id,
         "filename": df.attrs["filename"],
+        "classifier": CLASSIFIER_LABELS.get(classifier, classifier),
         "rows": len(df),
         "columns": list(df.columns),
         "types": _detect_types(df),

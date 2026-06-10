@@ -176,7 +176,7 @@ Giovanna Valentina Esteves
 
 Kevin Luís Lima
 
-Ruan
+Ruan Victor de Araújo Galvão
 
 ## Licença
 

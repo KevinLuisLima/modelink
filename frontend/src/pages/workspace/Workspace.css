@@ -1,9 +1,14 @@
-.workspace-page {
-  width: 100%;
+.workspace {
   min-height: 100vh;
-  background: #f5f7fb;
+  background: #f7f9fc;
 }
 
 .workspace-content {
-  padding: 100px 30px 30px;
+  padding-top: 90px;
+}
+
+@media (max-width: 768px) {
+  .workspace-content {
+    padding-top: 160px;
+  }
 }
