@@ -126,3 +126,12 @@ async def get_filtered_table(
         "columns": list(df.columns),
         "preview": df.head(limit).to_dict(orient="records")
     }
+
+@router.get("/result/{dataset_id}")
+async def get_classification_result(dataset_id: str):
+    df = get_dataset(dataset_id)
+
+    return {
+        "filename": df.attrs.get("filename", "Arquivo"),
+        "classification_result": df.attrs.get("classification_result", None)
+    }
