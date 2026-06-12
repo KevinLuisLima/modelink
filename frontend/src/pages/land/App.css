@@ -290,3 +290,36 @@ body {
     font-size: 1rem;
   }
 }
+
+.card-bottom-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.target-section {
+  width: 260px;
+}
+
+.target-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.target-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 2px solid #f97316;
+  border-radius: 10px;
+  background: white;
+  color: #253371;
+  font-size: 0.9rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+}
