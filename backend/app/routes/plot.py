@@ -1,6 +1,7 @@
 import pandas as pd
 
 from fastapi import APIRouter, HTTPException, Query
+from app.services.decision_tree import train_tree_classifier
 
 from app.services.datasest_store import get_dataset
 
@@ -126,3 +127,14 @@ async def get_filtered_table(
         "columns": list(df.columns),
         "preview": df.head(limit).to_dict(orient="records")
     }
+
+@router.get("/classifier/tree/{dataset_id}")
+async def classifier_route(dataset_id: str,target: str = Query(...)):
+    try:
+        return train_tree_classifier(dataset_id, target)
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
