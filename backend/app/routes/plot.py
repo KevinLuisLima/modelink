@@ -2,9 +2,9 @@ import pandas as pd
 
 from fastapi import APIRouter, HTTPException, Query
 from app.services.decision_tree import train_tree_classifier
-
+from app.services.SVM import train_svm_classifier
 from app.services.datasest_store import get_dataset
-
+from app.services.kmeans import train_kmeans
 router = APIRouter()
 
 @router.get("/plot/columns/{dataset_id}")
@@ -132,6 +132,42 @@ async def get_filtered_table(
 async def classifier_route(dataset_id: str,target: str = Query(...)):
     try:
         return train_tree_classifier(dataset_id, target)
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    
+@router.get("/cluster/kmeans/{dataset_id}")
+async def kmeans_route(
+    dataset_id: str,
+    n_clusters: int = Query(3, ge=2)
+):
+    try:
+        return train_kmeans(
+            dataset_id,
+            n_clusters
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    
+@router.get("/classifier/svm/{dataset_id}")
+async def svm_classifier(
+    dataset_id: str,
+    target: str = Query(...),
+    kernel: str = Query("rbf")
+):
+    try:
+        return train_svm_classifier(
+            dataset_id,
+            target,
+            kernel
+        )
 
     except ValueError as e:
         raise HTTPException(
