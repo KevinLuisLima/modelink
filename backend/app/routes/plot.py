@@ -1,9 +1,10 @@
 import pandas as pd
 
 from fastapi import APIRouter, HTTPException, Query
-
+from app.services.decision_tree import train_tree_classifier
+from app.services.SVM import train_svm_classifier
 from app.services.datasest_store import get_dataset
-
+from app.services.kmeans import train_kmeans
 router = APIRouter()
 
 @router.get("/plot/columns/{dataset_id}")
