@@ -128,11 +128,49 @@ async def get_filtered_table(
         "preview": df.head(limit).to_dict(orient="records")
     }
 
-@router.get("/result/{dataset_id}")
-async def get_classification_result(dataset_id: str):
-    df = get_dataset(dataset_id)
+@router.get("/classifier/tree/{dataset_id}")
+async def classifier_route(dataset_id: str,target: str = Query(...)):
+    try:
+        return train_tree_classifier(dataset_id, target)
 
-    return {
-        "filename": df.attrs.get("filename", "Arquivo"),
-        "classification_result": df.attrs.get("classification_result", None)
-    }
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    
+@router.get("/cluster/kmeans/{dataset_id}")
+async def kmeans_route(
+    dataset_id: str,
+    n_clusters: int = Query(3, ge=2)
+):
+    try:
+        return train_kmeans(
+            dataset_id,
+            n_clusters
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
+    
+@router.get("/classifier/svm/{dataset_id}")
+async def svm_classifier(
+    dataset_id: str,
+    target: str = Query(...),
+    kernel: str = Query("rbf")
+):
+    try:
+        return train_svm_classifier(
+            dataset_id,
+            target,
+            kernel
+        )
+
+    except ValueError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
