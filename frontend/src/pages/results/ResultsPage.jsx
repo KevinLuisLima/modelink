@@ -57,7 +57,7 @@ function ResultsPage() {
               alt="Árvore de decisão"
             />
 
-            <h2>Métricas</h2>
+            <h2>Métricas explicadas</h2>
             <p>{result.translated_metrics.accuracy}</p>
             <p>{result.translated_metrics.precision}</p>
             <p>{result.translated_metrics.recall}</p>
@@ -69,7 +69,7 @@ function ResultsPage() {
               </p>
             ))}
 
-            <h2>Matriz de confusão</h2>
+            <h2>Matriz de confusão explicada</h2>
               <div className="confusion-wrapper">
                 <table className="confusion-table">
                   <thead>
