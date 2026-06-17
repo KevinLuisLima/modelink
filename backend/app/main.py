@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.services import decision_tree
 from app.routes import upload, plot, info
+from app.routes import upload, plot
 
 app = FastAPI(title="Modelink API", version="0.1.0")
 
