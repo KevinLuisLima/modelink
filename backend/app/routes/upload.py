@@ -15,7 +15,7 @@ from fastapi import (
 from fastapi.responses import JSONResponse
 
 from app.services.datasest_store import save_dataset
-from app.services.classifier import run_classifier
+from app.services.decision_tree import run_classifier
 
 router = APIRouter()
 
