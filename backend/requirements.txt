@@ -3,3 +3,5 @@ uvicorn
 python-multipart
 pandas
 scikit-learn
+supabase
+python-dotenv
