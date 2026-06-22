@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routes import upload, plot, info
+from app.routes import upload
 from app.routes import models
 
 app = FastAPI(title="Modelink API", version="0.1.0")
@@ -14,6 +14,4 @@ app.add_middleware(
 )
 
 app.include_router(upload.router, prefix="/api")
-app.include_router(plot.router, prefix="/api")
-app.include_router(info.router, prefix="/api")
 app.include_router(models.router, prefix="/api")

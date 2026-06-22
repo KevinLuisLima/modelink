@@ -6,11 +6,9 @@ function Navbar({ activeTab, setActiveTab }) {
   const { id } = useParams();
 
   const buttons = [
-    { id: "tabela", label: "Tabela" },
     { id: "classificador", label: "Classificador" },
     { id: "acuracia", label: "Acurácia" },
     { id: "dashboard", label: "Dashboard" },
-    { id: "informacoes", label: "Informações" },
   ];
 
   function sair() {

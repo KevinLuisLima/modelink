@@ -1,42 +1,34 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import "./ResultsPage.css";
 
 function ResultsPage() {
   const { id } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
 
-  const [resultado, setResultado] = useState(null);
-  const [linkCopiado, setLinkCopiado] = useState(false);
-
-  useEffect(() => {
-    async function carregarResultado() {
-      try {
-        const response = await fetch(
-          `http://localhost:8000/api/result/${id}`
-        );
-
-        const data = await response.json();
-        setResultado(data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    carregarResultado();
-  }, [id]);
+  const resultado = location.state;
 
   if (!resultado) {
     return (
       <main className="results-page">
         <section className="results-card">
-          <h1>Carregando resultado...</h1>
+          <h1>Resultado não encontrado</h1>
+          <p>
+            Envie um dataset novamente para gerar um novo modelo.
+          </p>
+
+          <button
+            className="advanced-results-button"
+            onClick={() => navigate("/")}
+          >
+            Voltar
+          </button>
         </section>
       </main>
     );
   }
 
-  const result = resultado.classification_result;
+  const linkPublico = `${window.location.origin}/model/${id}`;
 
   return (
     <main className="results-page">
@@ -47,98 +39,59 @@ function ResultsPage() {
         >
           Sair
         </button>
+
         <h1>{resultado.filename}</h1>
 
-        {result ? (
-          <div className="result-box">
-            <img
-              className="tree-image"
-              src={result.tree_image}
-              alt="Árvore de decisão"
-            />
+        <div className="result-box">
+          <h2>Modelo treinado</h2>
 
-            <h2>Métricas explicadas</h2>
-            <p>{result.translated_metrics.accuracy}</p>
-            <p>{result.translated_metrics.precision}</p>
-            <p>{result.translated_metrics.recall}</p>
+          <p>
+            <strong>Classificador:</strong> {resultado.classifier}
+          </p>
 
-            <h2>Importância das variáveis</h2>
-            {result.feature_importance.map((item) => (
-              <p key={item.feature}>
-                <strong>{item.feature}</strong>: {item.importance}
-              </p>
-            ))}
+          {resultado.target && (
+            <p>
+              <strong>Coluna alvo:</strong> {resultado.target}
+            </p>
+          )}
 
-            <h2>Matriz de confusão explicada</h2>
-              <div className="confusion-wrapper">
-                <table className="confusion-table">
-                  <thead>
-                    <tr>
-                      <th>Real / Previsto </th>
+          {resultado.accuracy !== null && resultado.accuracy !== undefined && (
+            <p>
+              <strong>Acurácia:</strong> {resultado.accuracy}
+            </p>
+          )}
 
-                      {result.class_names.map((classe) => (
-                        <th key={classe}>{classe}</th>
-                      ))}
-                    </tr>
-                  </thead>
+          <p>
+            <strong>ID do modelo:</strong> {resultado.model_id}
+          </p>
 
-                  <tbody>
-                    {result.confusion_matrix.map((linha, i) => (
-                      <tr key={i}>
-                        <th>{result.class_names[i]}</th>
+          <h2>Link gerado</h2>
 
-                        {linha.map((valor, j) => (
-                          <td
-                            key={j}
-                            className={i === j ? "correct-cell" : "error-cell"}
-                          >
-                            {valor}
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-
-            <p>{result.human_confusion.explanation}</p>
-
-            <h2>Regras extraídas da árvore</h2>
-            <pre>{result.rules}</pre>   
-          </div>
-        ) : (
-          <p>Nenhum resultado de classificação encontrado.</p>
-        )}
-
-        <div className="results-actions">
-          <button
-            className="advanced-results-button"
-            onClick={() => navigate(`/workspace/${id}/avancado`)}
-          >
-            Opções avançadas
-          </button>
+          <p>{linkPublico}</p>
 
           <button
             className="share-results-button"
             onClick={() => {
-              navigator.clipboard.writeText(window.location.href);
-              setLinkCopiado(true);
-
-              setTimeout(() => {
-                setLinkCopiado(false);
-              }, 2500);
+              navigator.clipboard.writeText(linkPublico);
             }}
           >
-            Compartilhar
+            Copiar link
+          </button>
+        </div>
+
+        <div className="results-actions">
+          <button
+            className="advanced-results-button"
+            onClick={() =>
+              navigate(`/workspace/${id}/avancado`, {
+                state: resultado,
+              })
+            }
+          >
+            Opções avançadas
           </button>
         </div>
       </section>
-
-      {linkCopiado && (
-        <div className="copy-toast">
-          Link copiado com sucesso!
-        </div>
-      )}
     </main>
   );
 }
