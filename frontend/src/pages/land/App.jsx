@@ -20,7 +20,8 @@ function App() {
   const classificadores = [
     { value: "decisiontree", label: "Decision Tree" },
     { value: "svm", label: "SVM" },
-    { value: "kmeans", label: "KMeans" },
+    { value: "knn", label: "KNN" },
+    { value: "randomforest", label: "Random Forest" },
   ];
 
   async function classificarArquivo() {
