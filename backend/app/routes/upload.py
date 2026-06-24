@@ -2,85 +2,78 @@ import os
 import pandas as pd
 
 from io import BytesIO, StringIO
-from fastapi import APIRouter, UploadFile, File, Form, HTTPException
+from fastapi import (APIRouter, UploadFile, File, Form, HTTPException)
 from fastapi.responses import JSONResponse
-
 from app.services.decision_tree import train_tree_and_publish_from_df
 from app.services.SVM import train_svm_and_publish_from_df
 from app.services.KNN import train_knn_and_publish_from_df
+from app.services.random_forest import train_random_forest_and_publish_from_df
 
 router = APIRouter()
 
 CLASSIFIER_LABELS = {
     "decisiontree": "Decision Tree",
+    "randomforest": "Random Forest",
     "svm": "SVM",
     "knn": "KNN",
 }
 
 @router.post("/upload")
-async def upload_file(
-    file: UploadFile = File(...),
-    classifier: str = Form("decisiontree"),
-    target_column: str = Form(None),
-):
+async def upload_file(file: UploadFile = File(...),classifier: str = Form("decisiontree"),target_column: str = Form(None)):
     filename = file.filename.lower()
 
-    if not (
-        filename.endswith(".csv")
-        or filename.endswith(".xlsx")
-        or filename.endswith(".xls")
-        or filename.endswith(".tsv")
-    ):
-        raise HTTPException(
-            400,
-            "Apenas arquivos .csv, .xlsx, .xls ou .tsv são aceitos"
-        )
+    if not (filename.endswith(".csv") or filename.endswith(".xlsx") or filename.endswith(".xls") or filename.endswith(".tsv")):
+        raise HTTPException(400, "Apenas arquivos .csv, .xlsx, .xls ou .tsv são aceitos")
 
     if classifier not in CLASSIFIER_LABELS:
-        raise HTTPException(400, "Classificador inválido")
+        raise HTTPException(400,"Classificador inválido")
 
     content = await file.read()
 
     if len(content) > 10 * 1024 * 1024:
-        raise HTTPException(413, "Arquivo excede o limite de 10 MB")
+        raise HTTPException(413,"Arquivo excede o limite de 10 MB")
 
     try:
         if filename.endswith(".csv"):
             df = pd.read_csv(StringIO(content.decode("utf-8")))
 
         elif filename.endswith(".tsv"):
-            df = pd.read_csv(StringIO(content.decode("utf-8")), sep="\t")
+            df = pd.read_csv(StringIO(content.decode("utf-8")),sep="\t")
 
         else:
             df = pd.read_excel(BytesIO(content))
 
     except Exception as e:
-        raise HTTPException(422, f"Erro ao processar arquivo: {e}")
+        raise HTTPException(422,f"Erro ao processar arquivo: {e}")
 
     if df.empty:
-        raise HTTPException(400, "O dataset está vazio")
+        raise HTTPException(400,"O dataset está vazio")
 
     if not target_column:
         target_column = df.columns[-1]
 
     try:
+
         if classifier == "decisiontree":
-            result = train_tree_and_publish_from_df(df, target_column)
+            result = (train_tree_and_publish_from_df(df, target_column))
+
+        elif classifier == "randomforest":
+            result = (train_random_forest_and_publish_from_df(df, target_column))
 
         elif classifier == "svm":
-            result = train_svm_and_publish_from_df(df, target_column)
+            result = (train_svm_and_publish_from_df(df, target_column))
 
         elif classifier == "knn":
-            result = train_knn_and_publish_from_df(df, target_column)
+            result = (train_knn_and_publish_from_df(df, target_column))
 
         else:
-            raise HTTPException(400, "Classificador inválido")
+            raise HTTPException(400,"Classificador inválido")
 
     except ValueError as e:
         raise HTTPException(400, str(e))
 
     return JSONResponse({
-        "filename": os.path.splitext(file.filename)[0],
+        "filename": os.path.splitext(file.filename)[0],  
         "model_id": result["model_id"],
         "classifier": result["classifier"],
         "target": result.get("target"),
