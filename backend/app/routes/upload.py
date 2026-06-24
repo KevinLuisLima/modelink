@@ -81,10 +81,14 @@ async def upload_file(
 
     return JSONResponse({
         "filename": os.path.splitext(file.filename)[0],
-        "classifier": CLASSIFIER_LABELS[classifier],
-        "target": target_column if classifier != "kmeans" else None,
         "model_id": result["model_id"],
+        "classifier": result["classifier"],
+        "target": result.get("target"),
         "accuracy": result.get("accuracy"),
+        "precision": result.get("precision"),
+        "recall": result.get("recall"),
         "features": result.get("features", []),
-        "public_url": f"/model/{result['model_id']}"
+        "confusion_matrix": result.get("confusion_matrix"),
+        "class_names": result.get("class_names"),
+        "tree_image": result.get("tree_image"),
     })

@@ -7,7 +7,7 @@ function Navbar({ activeTab, setActiveTab }) {
 
   const buttons = [
     { id: "classificador", label: "Classificador" },
-    { id: "acuracia", label: "Acurácia" },
+    { id: "metricas", label: "Métricas" },
     { id: "dashboard", label: "Dashboard" },
   ];
 
@@ -42,7 +42,7 @@ function Navbar({ activeTab, setActiveTab }) {
 
       <button
         className="back-results-button"
-        onClick={() => navigate(`/workspace/${id}`)}
+        onClick={() => navigate(`/model/${id}`)}
       >
         Voltar
       </button>
