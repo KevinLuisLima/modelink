@@ -1,0 +1,112 @@
+import pandas as pd
+
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
+from app.services.supabase_store import upload_model_to_supabase
+
+
+def train_knn_and_publish_from_df(df: pd.DataFrame, target: str):
+    df = df.copy()
+
+    if target not in df.columns:
+        raise ValueError(f"Coluna alvo '{target}' não encontrada.")
+
+    df = df.dropna(subset=[target])
+
+    X = df.drop(columns=[target])
+    y = df[target]
+
+    if pd.api.types.is_numeric_dtype(y) and y.nunique() > 20:
+        raise ValueError(
+            "A coluna alvo escolhida parece ser numérica contínua. "
+            "Para KNN de classificação, escolha uma coluna categórica."
+        )
+
+    X = pd.get_dummies(X)
+    X = X.fillna(0)
+
+    if len(X.columns) == 0:
+        raise ValueError("Não existem colunas válidas para treinamento.")
+
+    stratify_column = (
+        y if y.nunique() < len(y) and y.value_counts().min() >= 2 else None
+    )
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X,
+        y,
+        test_size=0.2,
+        random_state=42,
+        stratify=stratify_column
+    )
+
+    model = Pipeline([
+        ("scaler", StandardScaler()),
+        ("knn", KNeighborsClassifier(n_neighbors=5))
+    ])
+
+    model.fit(X_train, y_train)
+
+    y_pred = model.predict(X_test)
+
+    accuracy = accuracy_score(y_test, y_pred)
+
+    precision = precision_score(
+        y_test,
+        y_pred,
+        average="weighted",
+        zero_division=0
+    )
+
+    recall = recall_score(
+        y_test,
+        y_pred,
+        average="weighted",
+        zero_division=0
+    )
+
+    class_labels = sorted(y.unique())
+    class_names = [str(c) for c in class_labels]
+
+    matrix = confusion_matrix(
+        y_test,
+        y_pred,
+        labels=class_labels
+    ).tolist()
+
+    upload_result = upload_model_to_supabase(
+        model_package={
+            "model": model,
+            "feature_names": list(X.columns),
+            "algorithm": "KNN"
+        },
+        metadata={
+            "algorithm": "KNN",
+            "target": target,
+            "accuracy": round(float(accuracy), 4),
+            "precision": round(float(precision), 4),
+            "recall": round(float(recall), 4),
+            "features": list(X.columns),
+            "confusion_matrix": matrix,
+            "class_names": class_names,
+            "tree_image": None
+        }
+    )
+
+    return {
+        "model_id": upload_result["model_id"],
+        "algorithm": "KNN",
+        "classifier": "KNN",
+        "target": target,
+        "accuracy": round(float(accuracy), 4),
+        "precision": round(float(precision), 4),
+        "recall": round(float(recall), 4),
+        "features": list(X.columns),
+        "confusion_matrix": matrix,
+        "class_names": class_names,
+        "tree_image": None
+    }

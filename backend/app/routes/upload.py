@@ -7,14 +7,14 @@ from fastapi.responses import JSONResponse
 
 from app.services.decision_tree import train_tree_and_publish_from_df
 from app.services.SVM import train_svm_and_publish_from_df
-# from app.services.kmeans import train_kmeans_and_publish_from_df
+from app.services.KNN import train_knn_and_publish_from_df
 
 router = APIRouter()
 
 CLASSIFIER_LABELS = {
     "decisiontree": "Decision Tree",
     "svm": "SVM",
-    "kmeans": "KMeans",
+    "knn": "KNN",
 }
 
 @router.post("/upload")
@@ -70,8 +70,8 @@ async def upload_file(
         elif classifier == "svm":
             result = train_svm_and_publish_from_df(df, target_column)
 
-       # elif classifier == "kmeans":
-       #   result = train_kmeans_and_publish_from_df(df)
+        elif classifier == "knn":
+            result = train_knn_and_publish_from_df(df, target_column)
 
         else:
             raise HTTPException(400, "Classificador inválido")
