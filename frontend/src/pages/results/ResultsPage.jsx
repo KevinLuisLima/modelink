@@ -68,32 +68,54 @@ function ResultsPage() {
           Sair
         </button>
 
-        <h1>Resultado do modelo</h1>
+        <h1>Resultado do seu modelo</h1>
         
         <div className="result-box">
-          <p>
-            <strong>Classificador:</strong> {resultado.classifier}
-          </p>
+          <div className="classifier-card">
+            <table className="classifier-info-table">
+              <tbody>
+                <tr>
+                  <th>Modelo</th>
+                  <td>{resultado.classifier}</td>
+                </tr>
 
-          {resultado.target && (
-            <p>
-              <strong>Coluna alvo:</strong> {resultado.target}
-            </p>
-          )}
+                <tr>
+                  <th>Coluna alvo</th>
+                  <td>{resultado.target || "Não se aplica"}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           <h2>Métricas</h2>
 
-          <p>
-            <strong>Acurácia:</strong> {resultado.accuracy}
-          </p>
+          <div className="metrics-table-wrapper">
+            <table className="metrics-table">
+              <thead>
+                <tr>
+                  <th>Métrica</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
 
-          <p>
-            <strong>Precisão:</strong> {resultado.precision}
-          </p>
+              <tbody>
+                <tr>
+                  <td>Acurácia</td>
+                  <td>{Number(resultado.accuracy).toFixed(4)}</td>
+                </tr>
 
-          <p>
-            <strong>Recall:</strong> {resultado.recall}
-          </p>
+                <tr>
+                  <td>Precisão</td>
+                  <td>{Number(resultado.precision).toFixed(4)}</td>
+                </tr>
+
+                <tr>
+                  <td>Recall</td>
+                  <td>{Number(resultado.recall).toFixed(4)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
           {resultado.tree_image && resultado.algorithm === "DecisionTree" && (
             <>
@@ -115,7 +137,11 @@ function ResultsPage() {
                 <table className="confusion-table">
                   <thead>
                     <tr>
-                      <th>Real / Previsto</th>
+                      <th>
+                        Real ↓
+                        <br />
+                        Previsto →
+                      </th>
 
                       {resultado.class_names.map((classe) => (
                         <th key={classe}>{classe}</th>

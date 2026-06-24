@@ -38,7 +38,7 @@ import "./Workspace.css";
       case "dashboard":
         return <DashboardView resultado={resultado} />;
       default:
-        return <ClassifierView />;
+        return <ClassifierView resultado={resultado} />;
     }
   }
 
