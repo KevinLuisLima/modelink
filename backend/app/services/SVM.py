@@ -2,72 +2,108 @@ import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
-from sklearn.metrics import accuracy_score, classification_report
+from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
+from sklearn.preprocessing import StandardScaler
+from sklearn.pipeline import Pipeline
+
+from app.services.supabase_store import upload_model_to_supabase
 
 
-def train_svm_classifier(
-    dataset_id: str,
-    target: str,
-    kernel: str = "rbf"
-):
-    
+def train_svm_and_publish_from_df(df: pd.DataFrame, target: str):
+    df = df.copy()
+
     if target not in df.columns:
-        raise ValueError(
-            f"Coluna alvo '{target}' não encontrada."
-        )
+        raise ValueError(f"Coluna alvo '{target}' não encontrada.")
 
     df = df.dropna(subset=[target])
 
     X = df.drop(columns=[target])
     y = df[target]
 
-    # Converte colunas categóricas
+    if pd.api.types.is_numeric_dtype(y) and y.nunique() > 20:
+        raise ValueError(
+            "A coluna alvo escolhida parece ser numérica contínua. "
+            "Para SVM de classificação, escolha uma coluna categórica."
+        )
+
     X = pd.get_dummies(X)
+    X = X.fillna(0)
 
     if len(X.columns) == 0:
-        raise ValueError(
-            "Não existem colunas válidas para treinamento."
-        )
+        raise ValueError("Não existem colunas válidas para treinamento.")
 
-    if y.nunique() < 2:
-        raise ValueError(
-            "A coluna alvo precisa possuir pelo menos duas classes."
-        )
+    stratify_column = y if y.nunique() < len(y) and y.value_counts().min() >= 2 else None
 
     X_train, X_test, y_train, y_test = train_test_split(
         X,
         y,
         test_size=0.2,
-        random_state=42
+        random_state=42,
+        stratify=stratify_column
     )
 
-    model = SVC(
-        kernel=kernel,
-        random_state=42
-    )
+    model = Pipeline([
+        ("scaler", StandardScaler()),
+        ("svm", SVC(kernel="rbf"))
+    ])
 
     model.fit(X_train, y_train)
 
     y_pred = model.predict(X_test)
 
-    accuracy = accuracy_score(
-        y_test,
-        y_pred
-    )
+    accuracy = accuracy_score(y_test, y_pred)
 
-    report = classification_report(
+    precision = precision_score(
         y_test,
         y_pred,
-        output_dict=True
+        average="weighted",
+        zero_division=0
+    )
+
+    recall = recall_score(
+        y_test,
+        y_pred,
+        average="weighted",
+        zero_division=0
+    )
+
+    class_names = [str(c) for c in sorted(y.unique())]
+
+    matrix = confusion_matrix(
+        y_test,
+        y_pred,
+        labels=sorted(y.unique())
+    ).tolist()
+
+    upload_result = upload_model_to_supabase(
+        model_package={
+            "model": model,
+            "feature_names": list(X.columns),
+            "algorithm": "SVM"
+        },
+        metadata={
+            "algorithm": "SVM",
+            "target": target,
+            "accuracy": round(float(accuracy), 4),
+            "precision": round(float(precision), 4),
+            "recall": round(float(recall), 4),
+            "features": list(X.columns),
+            "confusion_matrix": matrix,
+            "class_names": class_names,
+            "tree_image": None
+        }
     )
 
     return {
-        "model": "SVM",
-        "kernel": kernel,
+        "model_id": upload_result["model_id"],
+        "algorithm": "SVM",
+        "classifier": "SVM",
         "target": target,
-        "rows_used": len(df),
-        "features": list(X.columns),
         "accuracy": round(float(accuracy), 4),
-        "classes": list(map(str, model.classes_)),
-        "classification_report": report
+        "precision": round(float(precision), 4),
+        "recall": round(float(recall), 4),
+        "features": list(X.columns),
+        "confusion_matrix": matrix,
+        "class_names": class_names,
+        "tree_image": None
     }

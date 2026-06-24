@@ -121,11 +121,13 @@ function ResultsPage() {
             <>
               <h2>Árvore de decisão</h2>
 
-              <img
-                className="tree-image"
-                src={resultado.tree_image}
-                alt="Árvore de decisão"
-              />
+              <div className="tree-card">
+                <img
+                  className="tree-image"
+                  src={resultado.tree_image}
+                  alt="Árvore de decisão"
+                />
+              </div>
             </>
           )}
 
