@@ -1,50 +1,27 @@
 import os
-import uuid
 import pandas as pd
 
 from io import BytesIO, StringIO
 from fastapi import APIRouter, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse
 
-from app.services.datasest_store import save_dataset, save_classifier
+from app.services.decision_tree import train_tree_and_publish_from_df
+# from app.services.SVM import train_svm_and_publish_from_df
+# from app.services.kmeans import train_kmeans_and_publish_from_df
 
 router = APIRouter()
 
 CLASSIFIER_LABELS = {
-    "randomforest": "Random Forest",
-    "svm": "SVM",
-    "knn": "KNN",
     "decisiontree": "Decision Tree",
+    "svm": "SVM",
+    "kmeans": "KMeans",
 }
-
-
-def _detect_types(df: pd.DataFrame) -> dict:
-    types = {}
-
-    for col in df.columns:
-        if pd.api.types.is_numeric_dtype(df[col]):
-            types[col] = "num"
-        else:
-            types[col] = "str"
-
-    return types
-
-
-def _prepare_json_dataframe(df: pd.DataFrame) -> pd.DataFrame:
-    df = df.copy()
-    df = df.fillna("")
-
-    for col in df.columns:
-        if pd.api.types.is_datetime64_any_dtype(df[col]):
-            df[col] = df[col].astype(str)
-
-    return df
-
 
 @router.post("/upload")
 async def upload_file(
     file: UploadFile = File(...),
     classifier: str = Form("decisiontree"),
+    target_column: str = Form(None),
 ):
     filename = file.filename.lower()
 
@@ -58,6 +35,9 @@ async def upload_file(
             400,
             "Apenas arquivos .csv, .xlsx, .xls ou .tsv são aceitos"
         )
+
+    if classifier not in CLASSIFIER_LABELS:
+        raise HTTPException(400, "Classificador inválido")
 
     content = await file.read()
 
@@ -77,20 +57,38 @@ async def upload_file(
     except Exception as e:
         raise HTTPException(422, f"Erro ao processar arquivo: {e}")
 
-    dataset_id = str(uuid.uuid4())
-    df.attrs["filename"] = os.path.splitext(file.filename)[0]
+    if df.empty:
+        raise HTTPException(400, "O dataset está vazio")
 
-    save_dataset(dataset_id, df)
-    save_classifier(dataset_id, classifier)
+    if not target_column:
+        target_column = df.columns[-1]
 
-    df_json = _prepare_json_dataframe(df)
+    try:
+        if classifier == "decisiontree":
+            result = train_tree_and_publish_from_df(df, target_column)
+
+       # elif classifier == "svm":
+       #    result = train_svm_and_publish_from_df(df, target_column)
+
+       # elif classifier == "kmeans":
+       #   result = train_kmeans_and_publish_from_df(df)
+
+        else:
+            raise HTTPException(400, "Classificador inválido")
+
+    except ValueError as e:
+        raise HTTPException(400, str(e))
 
     return JSONResponse({
-        "dataset_id": dataset_id,
-        "filename": df.attrs["filename"],
-        "classifier": CLASSIFIER_LABELS.get(classifier, classifier),
-        "rows": len(df),
-        "columns": list(df.columns),
-        "types": _detect_types(df),
-        "preview": df_json.head(100).to_dict(orient="records"),
+        "filename": os.path.splitext(file.filename)[0],
+        "model_id": result["model_id"],
+        "classifier": result["classifier"],
+        "target": result.get("target"),
+        "accuracy": result.get("accuracy"),
+        "precision": result.get("precision"),
+        "recall": result.get("recall"),
+        "features": result.get("features", []),
+        "confusion_matrix": result.get("confusion_matrix"),
+        "class_names": result.get("class_names"),
+        "tree_image": result.get("tree_image"),
     })

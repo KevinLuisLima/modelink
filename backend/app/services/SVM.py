@@ -4,16 +4,13 @@ from sklearn.model_selection import train_test_split
 from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report
 
-from app.services.datasest_store import get_dataset
-
 
 def train_svm_classifier(
     dataset_id: str,
     target: str,
     kernel: str = "rbf"
 ):
-    df = get_dataset(dataset_id).copy()
-
+    
     if target not in df.columns:
         raise ValueError(
             f"Coluna alvo '{target}' não encontrada."

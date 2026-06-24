@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import "./ResultsPage.css";
 
 function ResultsPage() {
@@ -7,26 +7,33 @@ function ResultsPage() {
   const navigate = useNavigate();
 
   const [resultado, setResultado] = useState(null);
+  const [carregando, setCarregando] = useState(true);
   const [linkCopiado, setLinkCopiado] = useState(false);
 
   useEffect(() => {
     async function carregarResultado() {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/result/${id}`
+          `http://localhost:8000/api/models/${id}`
         );
+
+        if (!response.ok) {
+          throw new Error("Modelo não encontrado");
+        }
 
         const data = await response.json();
         setResultado(data);
       } catch (error) {
         console.error(error);
+      } finally {
+        setCarregando(false);
       }
     }
 
     carregarResultado();
   }, [id]);
 
-  if (!resultado) {
+  if (carregando) {
     return (
       <main className="results-page">
         <section className="results-card">
@@ -36,7 +43,20 @@ function ResultsPage() {
     );
   }
 
-  const result = resultado.classification_result;
+  if (!resultado) {
+    return (
+      <main className="results-page">
+        <section className="results-card">
+          <h1>Modelo não encontrado</h1>
+          <button onClick={() => navigate("/")}>
+            Voltar
+          </button>
+        </section>
+      </main>
+    );
+  }
+
+  const linkPublico = `${window.location.origin}/model/${id}`;
 
   return (
     <main className="results-page">
@@ -47,45 +67,92 @@ function ResultsPage() {
         >
           Sair
         </button>
-        <h1>{resultado.filename}</h1>
 
-        {result ? (
-          <div className="result-box">
-            <img
-              className="tree-image"
-              src={result.tree_image}
-              alt="Árvore de decisão"
-            />
+        <h1>Resultado do seu modelo</h1>
+        
+        <div className="result-box">
+          <div className="classifier-card">
+            <table className="classifier-info-table">
+              <tbody>
+                <tr>
+                  <th>Modelo</th>
+                  <td>{resultado.classifier}</td>
+                </tr>
 
-            <h2>Métricas explicadas</h2>
-            <p>{result.translated_metrics.accuracy}</p>
-            <p>{result.translated_metrics.precision}</p>
-            <p>{result.translated_metrics.recall}</p>
+                <tr>
+                  <th>Coluna alvo</th>
+                  <td>{resultado.target || "Não se aplica"}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
-            <h2>Importância das variáveis</h2>
-            {result.feature_importance.map((item) => (
-              <p key={item.feature}>
-                <strong>{item.feature}</strong>: {item.importance}
-              </p>
-            ))}
+          <h2>Métricas</h2>
 
-            <h2>Matriz de confusão explicada</h2>
+          <div className="metrics-table-wrapper">
+            <table className="metrics-table">
+              <thead>
+                <tr>
+                  <th>Métrica</th>
+                  <th>Valor</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td>Acurácia</td>
+                  <td>{Number(resultado.accuracy).toFixed(4)}</td>
+                </tr>
+
+                <tr>
+                  <td>Precisão</td>
+                  <td>{Number(resultado.precision).toFixed(4)}</td>
+                </tr>
+
+                <tr>
+                  <td>Recall</td>
+                  <td>{Number(resultado.recall).toFixed(4)}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          {resultado.tree_image && resultado.algorithm === "DecisionTree" && (
+            <>
+              <h2>Árvore de decisão</h2>
+
+              <img
+                className="tree-image"
+                src={resultado.tree_image}
+                alt="Árvore de decisão"
+              />
+            </>
+          )}
+
+          {resultado.confusion_matrix && resultado.class_names && (
+            <>
+              <h2>Matriz de confusão</h2>
+
               <div className="confusion-wrapper">
                 <table className="confusion-table">
                   <thead>
                     <tr>
-                      <th>Real / Previsto </th>
+                      <th>
+                        Real ↓
+                        <br />
+                        Previsto →
+                      </th>
 
-                      {result.class_names.map((classe) => (
+                      {resultado.class_names.map((classe) => (
                         <th key={classe}>{classe}</th>
                       ))}
                     </tr>
                   </thead>
 
                   <tbody>
-                    {result.confusion_matrix.map((linha, i) => (
+                    {resultado.confusion_matrix.map((linha, i) => (
                       <tr key={i}>
-                        <th>{result.class_names[i]}</th>
+                        <th>{resultado.class_names[i]}</th>
 
                         {linha.map((valor, j) => (
                           <td
@@ -100,37 +167,31 @@ function ResultsPage() {
                   </tbody>
                 </table>
               </div>
+            </>
+          )}
 
-            <p>{result.human_confusion.explanation}</p>
+          <div className="results-actions">
+            <button
+              className="advanced-results-button"
+              onClick={() => navigate(`/model/${id}/avancado`)}
+            >
+              Opções avançadas
+            </button>
 
-            <h2>Regras extraídas da árvore</h2>
-            <pre>{result.rules}</pre>   
+            <button
+              className="share-results-button"
+              onClick={() => {
+                navigator.clipboard.writeText(linkPublico);
+                setLinkCopiado(true);
+
+                setTimeout(() => {
+                  setLinkCopiado(false);
+                }, 2500);
+              }}
+            >
+              Copiar link
+            </button>
           </div>
-        ) : (
-          <p>Nenhum resultado de classificação encontrado.</p>
-        )}
-
-        <div className="results-actions">
-          <button
-            className="advanced-results-button"
-            onClick={() => navigate(`/workspace/${id}/avancado`)}
-          >
-            Opções avançadas
-          </button>
-
-          <button
-            className="share-results-button"
-            onClick={() => {
-              navigator.clipboard.writeText(window.location.href);
-              setLinkCopiado(true);
-
-              setTimeout(() => {
-                setLinkCopiado(false);
-              }, 2500);
-            }}
-          >
-            Compartilhar
-          </button>
         </div>
       </section>
 

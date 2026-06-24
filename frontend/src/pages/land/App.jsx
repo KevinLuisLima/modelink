@@ -18,10 +18,9 @@ function App() {
   const [columns, setColumns] = useState([]);
 
   const classificadores = [
-    { value: "randomforest", label: "Random Forest" },
-    { value: "svm", label: "SVM" },
-    { value: "knn", label: "KNN" },
     { value: "decisiontree", label: "Decision Tree" },
+    { value: "svm", label: "SVM" },
+    { value: "kmeans", label: "KMeans" },
   ];
 
   async function classificarArquivo() {
@@ -49,15 +48,20 @@ function App() {
       );
 
       if (!response.ok) {
-        throw new Error("Erro ao enviar arquivo.");
+        const errorData = await response.json();
+
+        throw new Error(
+          errorData.detail || "Erro ao enviar arquivo."
+        );
       }
 
       const data = await response.json();
 
-      navigate(`/workspace/${data.dataset_id}`);
+      navigate(`/model/${data.model_id}`);
+      
     } catch (error) {
       console.error(error);
-      setMensagem("Erro ao conectar com o backend.");
+      setMensagem(error.message);
     } finally {
       setCarregando(false);
     }
@@ -100,9 +104,7 @@ function App() {
         setColumns(headers);
 
         // última coluna vira alvo padrão
-        setTargetColumn(
-          headers[headers.length - 1]
-        );
+        setTargetColumn(headers[headers.length - 1]);
       }
     };
 
@@ -254,9 +256,10 @@ function App() {
           </button>
 
           {mensagem && (
-            <p className="message">
-              {mensagem}
-            </p>
+            <div className="error-box">
+              <strong>Não foi possível treinar o modelo</strong>
+              <p>{mensagem}</p>
+            </div>
           )}
 
         </div>

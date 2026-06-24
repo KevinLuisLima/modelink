@@ -11,10 +11,8 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<App />} />
-
-      <Route path="/workspace/:id" element={<ResultsPage />} />
-
-      <Route path="/workspace/:id/avancado" element={<Workspace />} />
+      <Route path="/model/:id" element={<ResultsPage />} />
+      <Route path="/model/:id/avancado" element={<Workspace />} />
     </Routes>
   </BrowserRouter>
 );
