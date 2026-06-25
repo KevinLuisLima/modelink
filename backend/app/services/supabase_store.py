@@ -65,8 +65,10 @@ def get_model_by_id(model_id: str):
         .table("models")
         .select("*")
         .eq("model_id", model_id)
-        .single()
         .execute()
     )
 
-    return response.data
+    if not response.data:
+        return None
+
+    return response.data[0]
