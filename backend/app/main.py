@@ -6,7 +6,7 @@ app = FastAPI(title="Modelink API", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173","https://modelink-modelink.vercel.app"],
+    allow_origins=["http://localhost:5173","https://modelink-modelink.vercel.app","https://modelink-nine.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
