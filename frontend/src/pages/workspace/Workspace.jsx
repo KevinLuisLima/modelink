@@ -5,6 +5,7 @@ import ClassifierView from "../../components/ClassifierView";
 import MetricView from "../../components/MetricView";
 import DashboardView from "../../components/DashboardView";
 import "./Workspace.css";
+import { API_URL } from "src/config";
 
   function Workspace() {
     const [activeTab, setActiveTab] = useState("classificador");
@@ -13,9 +14,7 @@ import "./Workspace.css";
 
     useEffect(() => {
     async function carregar() {
-      const response = await fetch(
-        `http://localhost:8000/api/models/${id}`
-      );
+      const response = await fetch(`${API_URL}/api/models/${id}`);
 
       const data = await response.json();
 

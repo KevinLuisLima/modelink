@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./ResultsPage.css";
+import { API_URL } from "src/config";
 
 function ResultsPage() {
   const { id } = useParams();
@@ -14,7 +15,7 @@ function ResultsPage() {
     async function carregarResultado() {
       try {
         const response = await fetch(
-          `http://localhost:8000/api/models/${id}`
+          `${API_URL}/api/models/${id}`
         );
 
         if (!response.ok) {

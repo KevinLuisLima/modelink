@@ -12,7 +12,8 @@ O Modelink busca democratizar o deploy de modelos de Machine Learning,  reduzind
 
 - React
 - Vite
-- Axios
+- Vercel
+- Render
 
 ### Backend
 
@@ -20,6 +21,9 @@ O Modelink busca democratizar o deploy de modelos de Machine Learning,  reduzind
 - FastAPI
 - Pandas
 - Uvicorn
+- Supabase
+- SQLite (cache/local)
+- Scikit-learn
 
 
 ## Estrutura do Projeto
@@ -50,9 +54,9 @@ modelink/
 
 ## Funcionalidades
 
-### Upload de CSV
+### Upload de arquivos
 
-O usuário pode enviar uma base de dados em formato `.csv`.
+O usuário pode enviar uma base de dados em formato `.csv`,`.tsv`,`.xls` e `.xlsx`.
 
 ### Treinamento do modelo
 
@@ -65,9 +69,11 @@ O usuário pode enviar uma base de dados em formato `.csv`.
 ### Geração de URL pública
  
 - Versionamento automático
-- DOI para modelos publicados
+- Persistência do modelo treinado no Supabase
+- Compartilhamento por URL pública
+- Identificador único (UUID) para cada modelo
 
-### Painel de monitoramento
+### Funcionalidades planejadas
 
 - Latência
 - Drift de modelo
@@ -170,6 +176,26 @@ npm run dev
 ```txt
 http://localhost:5173
 ```
+
+## Deploy
+
+Frontend:
+- Vercel
+
+Backend:
+- Render
+
+Banco de dados e armazenamento:
+- Supabase
+
+Após o deploy, configure:
+
+Frontend (.env)
+VITE_API_URL=https://SEU_BACKEND.onrender.com
+
+Backend (.env)
+SUPABASE_URL=...
+SUPABASE_KEY=...
 
 ## Autor
 Giovanna Valentina Esteves
