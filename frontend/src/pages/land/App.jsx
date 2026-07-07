@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from "xlsx";
 import "./App.css";
-import { API_URL } from "src/config";
+import { API_URL } from "../../config";
 
 function App() {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ function App() {
       setMensagem("");
 
       const response = await fetch(
-        `${API_URL}/api/models/${id}`,
+        `${API_URL}/api/upload`,
         {
           method: "POST",
           body: formData,
