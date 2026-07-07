@@ -15,7 +15,7 @@ function ResultsPage() {
     async function carregarResultado() {
       try {
         const response = await fetch(
-          `${API_URL}/api/upload`
+        `${API_URL}/api/models/${id}`
         );
 
         if (!response.ok) {
