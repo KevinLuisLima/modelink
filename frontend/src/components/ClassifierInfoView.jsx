@@ -1,6 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useState, useEffect } from "react";
 import "../styles/ClassifierInfoView.css";
+import { API_URL } from "../../config";
 
 function ClassifierInfoView() {
   const { id } = useParams();
@@ -9,14 +10,14 @@ function ClassifierInfoView() {
   const [erro, setErro] = useState(false);
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/info/${id}`)
-      .then((res) => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then((data) => setInfo(data))
-      .catch(() => setErro(true));
-  }, [id]);
+  fetch(`${API_URL}/api/info/${id}`)
+    .then((res) => {
+      if (!res.ok) throw new Error();
+      return res.json();
+    })
+    .then((data) => setInfo(data))
+    .catch(() => setErro(true));
+}, [id]);
 
   function compartilhar() {
     navigator.clipboard.writeText(window.location.href);
