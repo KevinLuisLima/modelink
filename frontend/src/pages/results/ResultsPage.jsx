@@ -76,29 +76,6 @@ function ResultsPage() {
         </button>
 
         <h1>Resultado do seu modelo</h1>
-
-        <div className="share-link-box">
-          <span className="share-link-label">Link público</span>
-          <div className="share-link-row">
-            <input
-              className="share-link-input"
-              type="text"
-              readOnly
-              value={linkPublico}
-              onFocus={(e) => e.target.select()}
-            />
-            <button
-              className="share-link-copy-btn"
-              onClick={copiarLink}
-            >
-              {linkCopiado ? "✓ Copiado" : "Copiar"}
-            </button>
-          </div>
-          <p className="share-link-hint">
-            Qualquer pessoa com este link pode visualizar os resultados deste modelo.
-          </p>
-        </div>
-
         <div className="result-box">
           <div className="classifier-card">
             <table className="classifier-info-table">
@@ -208,6 +185,31 @@ function ResultsPage() {
             >
               Opções avançadas
             </button>
+          </div>
+
+          <div className="share-link-box bottom-share-link">
+            <span className="share-link-label">Link público</span>
+
+            <div className="share-link-row">
+              <input
+                className="share-link-input"
+                type="text"
+                readOnly
+                value={linkPublico}
+                onFocus={(e) => e.target.select()}
+              />
+
+              <button
+                className="share-link-copy-btn"
+                onClick={copiarLink}
+              >
+                {linkCopiado ? "✓ Copiado" : "Copiar link"}
+              </button>
+            </div>
+
+            <p className="share-link-hint">
+              Qualquer pessoa com este link pode visualizar os resultados e usar este classificador.
+            </p>
           </div>
         </div>
       </section>

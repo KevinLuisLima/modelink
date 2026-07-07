@@ -127,13 +127,16 @@
 }
 
 @media (max-width: 900px) {
+  .dashboard-page {
+    padding: 24px 16px;
+  }
+
   .dashboard-cards {
     grid-template-columns: repeat(2, 1fr);
   }
 
   .horizontal-bar-row,
   .class-row {
-    display: grid;
     grid-template-columns: 120px 1fr 60px;
     gap: 10px;
   }
@@ -141,16 +144,37 @@
 
 @media (max-width: 560px) {
   .dashboard-page {
-    padding: 20px;
+    padding: 20px 12px;
+  }
+
+  .dashboard-page h1 {
+    font-size: 28px;
   }
 
   .dashboard-cards {
     grid-template-columns: 1fr;
   }
 
+  .dashboard-card strong {
+    font-size: 26px;
+  }
+
   .horizontal-bar-row,
   .class-row {
     grid-template-columns: 1fr;
     gap: 8px;
+  }
+
+  .chart-card,
+  .vertical-chart {
+    padding: 16px;
+  }
+
+  .vertical-bar-wrapper {
+    height: 110px;
+  }
+
+  .vertical-bar {
+    width: 34px;
   }
 }

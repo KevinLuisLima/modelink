@@ -34,6 +34,7 @@
   border-bottom: 1px solid #e5e7eb;
   text-align: left;
   font-size: 15px;
+  word-break: break-word;
 }
 
 .classifier-info-table tr:last-child th,
@@ -49,7 +50,7 @@
 }
 
 .tree-card {
-  width: 96%;
+  width: 100%;
   margin: 0 auto 32px;
   background: white;
   border-radius: 16px;
@@ -62,12 +63,14 @@
   display: block;
   width: 100%;
   max-width: 1400px;
+  min-width: 600px;
   margin: 0 auto;
   border-radius: 12px;
 }
 
 .features-table-wrapper {
-  max-width: 500px;
+  max-width: 680px;
+  width: 100%;
   overflow-x: auto;
 }
 
@@ -102,4 +105,44 @@
 .features-table th:first-child {
   width: 80px;
   text-align: center;
+}
+
+@media (max-width: 768px) {
+  .classifier-page {
+    padding: 24px 16px;
+  }
+
+  .classifier-page h1 {
+    font-size: 28px;
+  }
+
+  .classifier-page h2 {
+    font-size: 22px;
+  }
+
+  .classifier-info-table th,
+  .classifier-info-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .classifier-info-table th {
+    width: 100%;
+  }
+
+  .tree-card {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .classifier-page {
+    padding: 20px 12px;
+  }
+
+  .features-table th,
+  .features-table td {
+    padding: 12px;
+    font-size: 13px;
+  }
 }

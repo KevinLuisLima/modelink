@@ -1,31 +1,63 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+
 import Navbar from "../../components/Navbar";
 import ClassifierView from "../../components/ClassifierView";
 import MetricView from "../../components/MetricView";
 import DashboardView from "../../components/DashboardView";
+
 import "./Workspace.css";
 import { API_URL } from "../../config";
 
-  function Workspace() {
-    const [activeTab, setActiveTab] = useState("classificador");
-    const { id } = useParams();
-    const [resultado, setResultado] = useState(null);
+function Workspace() {
+  const [activeTab, setActiveTab] = useState("classificador");
+  const [resultado, setResultado] = useState(null);
+  const [erro, setErro] = useState("");
 
-    useEffect(() => {
+  const { id } = useParams();
+
+  useEffect(() => {
     async function carregar() {
-      const response = await fetch(`${API_URL}/api/upload`);
+      try {
+        const response = await fetch(`${API_URL}/api/models/${id}`);
 
-      const data = await response.json();
+        if (!response.ok) {
+          throw new Error("Modelo não encontrado.");
+        }
 
-      setResultado(data);
+        const data = await response.json();
+        setResultado(data);
+      } catch (error) {
+        console.error(error);
+        setErro(error.message);
+      }
     }
 
     carregar();
   }, [id]);
 
+  if (erro) {
+    return (
+      <div className="workspace">
+        <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        <main className="workspace-content">
+          <h1>{erro}</h1>
+        </main>
+      </div>
+    );
+  }
+
   if (!resultado) {
-    return <h1>Carregando...</h1>;
+    return (
+      <div className="workspace">
+        <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        <main className="workspace-content">
+          <h1>Carregando...</h1>
+        </main>
+      </div>
+    );
   }
 
   function renderTab() {
@@ -44,6 +76,7 @@ import { API_URL } from "../../config";
   return (
     <div className="workspace">
       <Navbar activeTab={activeTab} setActiveTab={setActiveTab} />
+
       <main className="workspace-content">
         {renderTab()}
       </main>
