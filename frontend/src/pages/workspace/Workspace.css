@@ -7,8 +7,14 @@
   padding-top: 90px;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .workspace-content {
-    padding-top: 160px;
+    padding-top: 150px;
+  }
+}
+
+@media (max-width: 560px) {
+  .workspace-content {
+    padding-top: 210px;
   }
 }
