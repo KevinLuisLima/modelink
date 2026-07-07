@@ -59,6 +59,12 @@ function ResultsPage() {
 
   const linkPublico = `${window.location.origin}/model/${id}`;
 
+  function copiarLink() {
+    navigator.clipboard.writeText(linkPublico);
+    setLinkCopiado(true);
+    setTimeout(() => setLinkCopiado(false), 2500);
+  }
+
   return (
     <main className="results-page">
       <section className="results-card">
@@ -70,7 +76,29 @@ function ResultsPage() {
         </button>
 
         <h1>Resultado do seu modelo</h1>
-        
+
+        <div className="share-link-box">
+          <span className="share-link-label">Link público</span>
+          <div className="share-link-row">
+            <input
+              className="share-link-input"
+              type="text"
+              readOnly
+              value={linkPublico}
+              onFocus={(e) => e.target.select()}
+            />
+            <button
+              className="share-link-copy-btn"
+              onClick={copiarLink}
+            >
+              {linkCopiado ? "✓ Copiado" : "Copiar"}
+            </button>
+          </div>
+          <p className="share-link-hint">
+            Qualquer pessoa com este link pode visualizar os resultados deste modelo.
+          </p>
+        </div>
+
         <div className="result-box">
           <div className="classifier-card">
             <table className="classifier-info-table">
@@ -179,20 +207,6 @@ function ResultsPage() {
               onClick={() => navigate(`/model/${id}/avancado`)}
             >
               Opções avançadas
-            </button>
-
-            <button
-              className="share-results-button"
-              onClick={() => {
-                navigator.clipboard.writeText(linkPublico);
-                setLinkCopiado(true);
-
-                setTimeout(() => {
-                  setLinkCopiado(false);
-                }, 2500);
-              }}
-            >
-              Copiar link
             </button>
           </div>
         </div>
