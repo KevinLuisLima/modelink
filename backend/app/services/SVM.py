@@ -26,7 +26,9 @@ def train_svm_and_publish_from_df(df: pd.DataFrame, target: str):
             "Para SVM de classificação, escolha uma coluna categórica."
         )
 
+    original_features = list(X.columns)
     X = pd.get_dummies(X)
+    encoded_features = list(X.columns)
     X = X.fillna(0)
 
     if len(X.columns) == 0:
@@ -44,7 +46,11 @@ def train_svm_and_publish_from_df(df: pd.DataFrame, target: str):
 
     model = Pipeline([
         ("scaler", StandardScaler()),
-        ("svm", SVC(kernel="rbf"))
+        ("svm", SVC(
+            kernel="rbf",
+            probability=True,
+            random_state=42
+        ))
     ])
 
     model.fit(X_train, y_train)
@@ -78,7 +84,8 @@ def train_svm_and_publish_from_df(df: pd.DataFrame, target: str):
     upload_result = upload_model_to_supabase(
         model_package={
             "model": model,
-            "feature_names": list(X.columns),
+            "feature_names": encoded_features,
+            "original_features": original_features,
             "algorithm": "SVM"
         },
         metadata={
