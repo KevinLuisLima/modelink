@@ -94,10 +94,12 @@ def train_svm_and_publish_from_df(df: pd.DataFrame, target: str):
             "accuracy": round(float(accuracy), 4),
             "precision": round(float(precision), 4),
             "recall": round(float(recall), 4),
-            "features": list(X.columns),
+            "features": encoded_features,
+            "original_features": original_features,
             "confusion_matrix": matrix,
             "class_names": class_names,
-            "tree_image": None
+            "tree_image": None,
+            "feature_importance": None
         }
     )
 
@@ -109,7 +111,8 @@ def train_svm_and_publish_from_df(df: pd.DataFrame, target: str):
         "accuracy": round(float(accuracy), 4),
         "precision": round(float(precision), 4),
         "recall": round(float(recall), 4),
-        "features": list(X.columns),
+        "features": original_features,
+        "encoded_features": encoded_features,
         "confusion_matrix": matrix,
         "class_names": class_names,
         "tree_image": None
