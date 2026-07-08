@@ -15,8 +15,14 @@ from sklearn.metrics import (
 from app.services.supabase_store import upload_model_to_supabase
 
 
-def train_tree_and_publish_from_df(df: pd.DataFrame, target: str):
+def train_tree_and_publish_from_df(
+    df: pd.DataFrame,
+    target: str
+):
     df = df.copy()
+
+    for col in df.select_dtypes(include=["object"]).columns:
+        df[col] = df[col].astype(str).str.strip()
 
     if target not in df.columns:
         raise ValueError(f"Coluna alvo '{target}' não encontrada.")
@@ -26,18 +32,23 @@ def train_tree_and_publish_from_df(df: pd.DataFrame, target: str):
     X = df.drop(columns=[target])
     y = df[target]
 
+    original_features = list(X.columns)
+
+    if pd.api.types.is_numeric_dtype(y) and y.nunique() > 20:
+        raise ValueError(
+            "A coluna alvo escolhida parece ser numérica contínua. "
+            "Para classificação, escolha uma coluna categórica, como: classe, status, tipo, categoria, ou 'sim/não'."
+        )
+
     X = pd.get_dummies(X)
+    X = X.fillna(0)
 
     if len(X.columns) == 0:
         raise ValueError("Não existem colunas válidas para treinamento.")
 
-    if pd.api.types.is_numeric_dtype(y) and y.nunique() > 20:
-        raise ValueError(
-        "A coluna alvo escolhida parece ser numérica contínua. "
-        "Para classificação, escolha uma coluna categórica, como: classe, status, tipo, categoria, ou 'sim/não'."
+    stratify_column = (
+        y if y.nunique() < len(y) and y.value_counts().min() >= 2 else None
     )
-
-    stratify_column = y if y.nunique() < len(y) and y.value_counts().min() >= 2 else None
 
     X_train, X_test, y_train, y_test = train_test_split(
         X,
@@ -106,10 +117,21 @@ def train_tree_and_publish_from_df(df: pd.DataFrame, target: str):
         for col, score in zip(X.columns, model.feature_importances_)
     }
 
+    importances = dict(
+        sorted(
+            importances.items(),
+            key=lambda item: item[1],
+            reverse=True
+        )
+    )
+
+    encoded_features = list(X.columns)
+
     upload_result = upload_model_to_supabase(
         model_package={
             "model": model,
-            "feature_names": list(X.columns),
+            "feature_names": encoded_features,
+            "original_features": original_features,
             "algorithm": "DecisionTree"
         },
         metadata={
@@ -118,7 +140,8 @@ def train_tree_and_publish_from_df(df: pd.DataFrame, target: str):
             "accuracy": round(float(accuracy), 4),
             "precision": round(float(precision), 4),
             "recall": round(float(recall), 4),
-            "features": list(X.columns),
+            "features": encoded_features,
+            "original_features": original_features,
             "confusion_matrix": matrix,
             "class_names": class_names,
             "tree_image": tree_image,
@@ -134,8 +157,10 @@ def train_tree_and_publish_from_df(df: pd.DataFrame, target: str):
         "accuracy": round(float(accuracy), 4),
         "precision": round(float(precision), 4),
         "recall": round(float(recall), 4),
-        "features": list(X.columns),
+        "features": original_features,
+        "encoded_features": encoded_features,
         "confusion_matrix": matrix,
         "class_names": class_names,
-        "tree_image": tree_image
+        "tree_image": tree_image,
+        "feature_importance": importances
     }

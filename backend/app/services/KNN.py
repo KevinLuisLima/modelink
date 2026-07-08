@@ -25,8 +25,10 @@ def train_knn_and_publish_from_df(df: pd.DataFrame, target: str):
             "A coluna alvo escolhida parece ser numérica contínua. "
             "Para KNN de classificação, escolha uma coluna categórica."
         )
-
+    
+    original_features = list(X.columns)
     X = pd.get_dummies(X)
+    encoded_features = list(X.columns)
     X = X.fillna(0)
 
     if len(X.columns) == 0:
@@ -81,7 +83,8 @@ def train_knn_and_publish_from_df(df: pd.DataFrame, target: str):
     upload_result = upload_model_to_supabase(
         model_package={
             "model": model,
-            "feature_names": list(X.columns),
+            "feature_names": encoded_features,
+            "original_features": original_features,
             "algorithm": "KNN"
         },
         metadata={

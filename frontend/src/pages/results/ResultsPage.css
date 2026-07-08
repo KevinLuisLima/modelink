@@ -17,6 +17,7 @@
 }
 
 .results-card h1 {
+  text-align: center;
   margin: 0 0 28px;
   color: #0f172a;
   font-size: clamp(1.8rem, 4vw, 2.4rem);
@@ -88,22 +89,6 @@
 
 .advanced-results-button:hover {
   background: #fff7ed;
-}
-
-.share-results-button {
-  border: none;
-  background: #2563eb;
-  color: white;
-  padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.share-results-button:hover {
-  background: #1d4ed8;
 }
 
 .copy-toast {
@@ -276,7 +261,8 @@
 }
 
 .predict-button {
-  margin-top: 24px;
+  display: block;
+  margin: 24px auto 0;
   padding: 12px 22px;
   border: none;
   border-radius: 12px;
@@ -290,17 +276,115 @@
 
 .predict-button:hover {
   background: #2563eb;
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .prediction-result {
-  margin-top: 24px;
+  margin-top: 30px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}
+
+.prediction-result h3 {
+  margin: 0 0 22px;
+  color: #253371;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.prediction-table {
+  width: 100%;
+  max-width: 500px;
+  border-collapse: collapse;
+  margin-bottom: 22px;
+}
+
+.prediction-table {
+  width: 100%;
+  max-width: 520px;
+
+  border-collapse: separate;
+  border-spacing: 0;
+
+  overflow: hidden;
+  border-radius: 16px;
+
+  background: white;
+
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.prediction-table th,
+.prediction-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.prediction-table th {
+  width: 180px;
+
+  background: #111827;
+  color: white;
+
+  text-align: left;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.prediction-table td {
+  background: #f8fafc;
+
+  color: #253371;
+
+  font-size: 16px;
+}
+
+.prediction-table tr:last-child th,
+.prediction-table tr:last-child td {
+  border-bottom: none;
+}
+
+/* Cantos arredondados */
+
+.prediction-table tr:first-child th:first-child {
+  border-top-left-radius: 16px;
+}
+
+.prediction-table tr:first-child td:last-child {
+  border-top-right-radius: 16px;
+}
+
+.prediction-table tr:last-child th:first-child {
+  border-bottom-left-radius: 16px;
+}
+
+.prediction-table tr:last-child td:last-child {
+  border-bottom-right-radius: 16px;
+}
+
+.prediction-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #f97316;
+  text-transform: uppercase;
+}
+
+.prediction-description {
+  margin: 0;
   padding: 18px;
-  border-radius: 14px;
-  background: #dcfce7;
-  color: #166534;
-  font-size: 18px;
-  text-align: center;
+  border-left: 5px solid #f97316;
+  background: #fff7ed;
+  border-radius: 10px;
+  color: #444;
+  line-height: 1.7;
+  font-size: 15px;
+}
+
+.prediction-description strong {
+  color: #f97316;
 }
 
 @media (max-width: 768px) {

@@ -11,19 +11,31 @@ function ResultsPage() {
   const [carregando, setCarregando] = useState(true);
   const [linkCopiado, setLinkCopiado] = useState(false);
 
+  const [predictValues, setPredictValues] = useState({});
+  const [prediction, setPrediction] = useState(null);
+  const [predictLoading, setPredictLoading] = useState(false);
+  const [predictError, setPredictError] = useState("");
+
   useEffect(() => {
     async function carregarResultado() {
       try {
-        const response = await fetch(
-        `${API_URL}/api/models/${id}`
-        );
+        const response = await fetch(`${API_URL}/api/models/${id}`);
 
         if (!response.ok) {
           throw new Error("Modelo não encontrado");
         }
 
         const data = await response.json();
+
         setResultado(data);
+
+        const initialValues = {};
+
+        (data.features || []).forEach((feature) => {
+          initialValues[feature] = "";
+        });
+
+        setPredictValues(initialValues);
       } catch (error) {
         console.error(error);
       } finally {
@@ -33,6 +45,60 @@ function ResultsPage() {
 
     carregarResultado();
   }, [id]);
+
+  const linkPublico = `${window.location.origin}/model/${id}`;
+
+  function copiarLink() {
+    navigator.clipboard.writeText(linkPublico);
+    setLinkCopiado(true);
+    setTimeout(() => setLinkCopiado(false), 2500);
+  }
+
+  function alterarCampo(campo, valor) {
+    setPredictValues((old) => ({
+      ...old,
+      [campo]: valor,
+    }));
+  }
+
+  async function classificarNovoRegistro() {
+    try {
+      setPredictLoading(true);
+      setPrediction(null);
+      setPredictError("");
+
+      const valuesToSend = {};
+
+      (resultado.features || []).forEach((feature) => {
+        valuesToSend[feature] = predictValues[feature] ?? "";
+      });
+
+      console.log("Enviando para predição:", valuesToSend);
+
+      const response = await fetch(`${API_URL}/api/models/${id}/predict`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          values: valuesToSend,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Erro ao realizar classificação.");
+      }
+
+      setPrediction(data);
+    } catch (error) {
+      console.error(error);
+      setPredictError(error.message);
+    } finally {
+      setPredictLoading(false);
+    }
+  }
 
   if (carregando) {
     return (
@@ -49,20 +115,16 @@ function ResultsPage() {
       <main className="results-page">
         <section className="results-card">
           <h1>Modelo não encontrado</h1>
-          <button onClick={() => navigate("/")}>
+
+          <button
+            className="share-results-button"
+            onClick={() => navigate("/")}
+          >
             Voltar
           </button>
         </section>
       </main>
     );
-  }
-
-  const linkPublico = `${window.location.origin}/model/${id}`;
-
-  function copiarLink() {
-    navigator.clipboard.writeText(linkPublico);
-    setLinkCopiado(true);
-    setTimeout(() => setLinkCopiado(false), 2500);
   }
 
   return (
@@ -75,7 +137,8 @@ function ResultsPage() {
           Sair
         </button>
 
-        <h1>Resultado do seu modelo</h1>
+        <h1>{"Resultado do seu modelo"}</h1>
+
         <div className="result-box">
           <div className="classifier-card">
             <table className="classifier-info-table">
@@ -165,7 +228,9 @@ function ResultsPage() {
                         {linha.map((valor, j) => (
                           <td
                             key={j}
-                            className={i === j ? "correct-cell" : "error-cell"}
+                            className={
+                              i === j ? "correct-cell" : "error-cell"
+                            }
                           >
                             {valor}
                           </td>
@@ -177,6 +242,82 @@ function ResultsPage() {
               </div>
             </>
           )}
+
+          <h2>Usar o classificador</h2>
+
+          <div className="predict-card">
+            <div className="predict-grid">
+              {resultado.features?.map((feature) => (
+                <div className="predict-field" key={feature}>
+                  <label>{feature}</label>
+
+                  <input
+                    type="text"
+                    value={predictValues[feature] ?? ""}
+                    onChange={(e) =>
+                      alterarCampo(feature, e.target.value)
+                    }
+                    placeholder={`Informe ${feature}`}
+                  />
+                </div>
+              ))}
+            </div>
+
+            <button
+              className="predict-button"
+              onClick={classificarNovoRegistro}
+              disabled={predictLoading}
+            >
+              {predictLoading ? "Classificando..." : "Classificar"}
+            </button>
+
+            {predictError && (
+              <div className="error-box">
+                <strong>Não foi possível classificar</strong>
+                <p>{predictError}</p>
+              </div>
+            )}
+
+            {prediction && (
+              <div className="prediction-result">
+                <h3>Resultado da classificação</h3>
+
+                <table className="prediction-table">
+                  <tbody>
+                    <tr>
+                      <th>Classe prevista</th>
+                      <td className="prediction-value">
+                        {prediction.prediction}
+                      </td>
+                    </tr>
+
+                    <tr>
+                      <th>Confiança</th>
+                      <td>
+                        {prediction.confidence !== undefined
+                          ? `${(prediction.confidence * 100).toFixed(1)}%`
+                          : "Não disponível"}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+
+                <p className="prediction-description">
+                  O modelo considera que este registro pertence à classe{" "}
+                  <strong>"{prediction.prediction}"</strong>{" "}
+                  {prediction.confidence !== undefined && (
+                    <>
+                      com{" "}
+                      <strong>
+                        {(prediction.confidence * 100).toFixed(1)}%
+                      </strong>{" "}
+                      de confiança.
+                    </>
+                  )}
+                </p>
+              </div>
+            )}
+          </div>
 
           <div className="results-actions">
             <button
